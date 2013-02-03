@@ -4,11 +4,6 @@ class World
   WIDTH = 6000
   HEIGHT = 4500
   DT = (1.0 / 60.0)
-  # The number of steps to process every Gosu update
-  # The Player ship can get going so fast as to "move through" a
-  # star without triggering a collision; an increased number of
-  # Chipmunk step calls per update will effectively avoid this issue
-  SUBSTEPS = 6
 
   attr_reader :window
   
@@ -31,11 +26,16 @@ class World
   end
   
   def draw
-    @things.each {|t| t.draw(@center) }
+    @things.each {|t| t.draw @center }
   end
   
   def step
+    @things.each {|t| t.step @center }
     @space.step DT
+  end
+  
+  def center
+    CP::Vec2.new(WIDTH / 2, HEIGHT / 2)
   end
 end
 
@@ -62,10 +62,7 @@ class Thing
     @shape.body.p = CP::Vec2.new(0.0, 0.0)
     @shape.body.v = CP::Vec2.new(0.0, 0.0)
     
-    # Keep in mind that down the screen is positive y, which means that PI/2 radians,
-    # which you might consider the top in the traditional Trig unit circle sense is actually
-    # the bottom; thus 3PI/2 is the top
-    @shape.body.a = (3*Math::PI/2.0) # angle in radians; faces towards top of screen
+    @shape.body.a = (3 * Math::PI / 2.0) # angle in radians; faces towards top of screen
     
     world.add(self)
   end
@@ -76,6 +73,11 @@ class Thing
   
   def warp(vect)
     @shape.body.p = vect
+  end
+  
+  def step(center)
+    return
+    return if (body.p.x - center.body.p.x).abs > GameWindow::WIDTH || (body.p.y - center.body.p.y).abs > GameWindow::WIDTH
   end
   
   def validate_position

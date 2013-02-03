@@ -5,23 +5,32 @@ class Player < Thing
     super(world, "img/rocket.png")
 
     shape.e = 0.2
-    shape.u = 0.1
+    shape.u = 0.3
     body.m = 40
     body.i = 200
 
-    warp CP::Vec2.new(0, 0)
+    warp world.center
   end
 
+  def spin(amount)
+    body.apply_impulse(CP::Vec2.new(0, amount), CP::Vec2.new(@image.height, 0))
+  end
+  
   def turn_left
-    @shape.body.apply_impulse(CP::Vec2.new(0, -0.25 / World::SUBSTEPS), CP::Vec2.new(@image.height, 0))
+    spin -1
   end
   
   def turn_right
-    @shape.body.apply_impulse(CP::Vec2.new(0, 0.25 / World::SUBSTEPS), CP::Vec2.new(@image.height, 0))
+    spin 1
   end
   
   def accelerate
-    @shape.body.apply_impulse((@shape.body.a.radians_to_vec2 * (90.0 / World::SUBSTEPS)), CP::Vec2.new(0.0, 0.0))
+    body.apply_impulse((@shape.body.a.radians_to_vec2 * 500.0), CP::Vec2.new(0.0, 0.0))
+  end
+  
+  def step(center)
+    super
+    validate_position
   end
 end
 
