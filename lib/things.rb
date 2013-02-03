@@ -23,16 +23,14 @@ class Player < Thing
   def turn_right
     spin 1
   end
-  
-  def accelerate
-    body.apply_impulse((@shape.body.a.radians_to_vec2 * 500.0), CP::Vec2.new(0.0, 0.0))
-  end
 
+  def chase(x, y)
+    @target = CP::Vec2.new(x, y)
+  end
+  
   def step
-    unless is_in_world?
-      edge_bounce = (CP::Vec2.new(World::WIDTH / 2, World::HEIGHT / 2) - body.p).normalize * 2000
-      body.apply_impulse(edge_bounce, CP::Vec2.new(0, 0))
-    end
+    body.apply_impulse((@target - body.p) * 3, CP::Vec2.new(0.0, 0.0)) if @target
+    @target = nil
   end
 end
 
