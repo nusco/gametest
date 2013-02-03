@@ -25,23 +25,9 @@ class GameWindow < Gosu::Window
       # Wrap around the screen to the other side
       @player.validate_position
       
-      # Check keyboard
-      if button_down? Gosu::KbLeft
-        @player.turn_left
-      end
-      if button_down? Gosu::KbRight
-        @player.turn_right
-      end
-      
-      if button_down? Gosu::KbUp
-        if ( (button_down? Gosu::KbRightShift) || (button_down? Gosu::KbLeftShift) )
-          @player.boost
-        else
-          @player.accelerate
-        end
-      elsif button_down? Gosu::KbDown
-        @player.reverse
-      end
+      @player.turn_left if button_down? Gosu::KbLeft
+      @player.turn_right if button_down? Gosu::KbRight
+      @player.accelerate if button_down? Gosu::KbUp
       
       # Perform the step over @dt period of time
       # For best performance @dt should remain consistent for the game

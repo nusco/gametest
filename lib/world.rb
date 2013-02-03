@@ -1,8 +1,8 @@
 require 'chipmunk'
 
 class World
-  WIDTH = 4000
-  HEIGHT = 3000
+  WIDTH = 6000
+  HEIGHT = 4500
   DT = (1.0 / 60.0)
   # The number of steps to process every Gosu update
   # The Player ship can get going so fast as to "move through" a
@@ -14,15 +14,8 @@ class World
   
   def initialize(window)
     @space = CP::Space.new
-    @space.damping = 0.8
-    @space.add_collision_func(:bump, :bump) do |shape1, shape2|
-      speed = shape1.body.v.length + shape2.body.v.length
-      unless speed < 20
-        shape1.body.t += (rand(200) - 100) * speed / World::SUBSTEPS
-        shape2.body.t += (rand(200) - 100) * speed / World::SUBSTEPS
-      end
-    end
- 
+    @space.damping = 0.9
+
     @window = window
     @things = []
   end
@@ -43,7 +36,6 @@ class World
   
   def step
     @space.step DT
-    @things.each {|t| t.reset_forces }
   end
 end
 
@@ -69,11 +61,11 @@ class Thing
     @shape = CP::Shape::Circle.new(body, @image.width / 2, CP::Vec2.new(0.0, 0.0))
     @shape.body.p = CP::Vec2.new(0.0, 0.0)
     @shape.body.v = CP::Vec2.new(0.0, 0.0)
+    
     # Keep in mind that down the screen is positive y, which means that PI/2 radians,
     # which you might consider the top in the traditional Trig unit circle sense is actually
     # the bottom; thus 3PI/2 is the top
     @shape.body.a = (3*Math::PI/2.0) # angle in radians; faces towards top of screen
-    shape.collision_type = :bump
     
     world.add(self)
   end
@@ -85,51 +77,9 @@ class Thing
   def warp(vect)
     @shape.body.p = vect
   end
-
-  # Apply negative Torque; Chipmunk will do the rest
-  # SUBSTEPS is used as a divisor to keep turning rate constant
-  # even if the number of steps per update are adjusted
-  def turn_left
-    @shape.body.t -= 400.0/World::SUBSTEPS
-  end
   
-  # Apply positive Torque; Chipmunk will do the rest
-  # SUBSTEPS is used as a divisor to keep turning rate constant
-  # even if the number of steps per update are adjusted
-  def turn_right
-    @shape.body.t += 400.0/World::SUBSTEPS
-  end
-  
-  # Apply forward force; Chipmunk will do the rest
-  # SUBSTEPS is used as a divisor to keep acceleration rate constant
-  # even if the number of steps per update are adjusted
-  # Here we must convert the angle (facing) of the body into
-  # forward momentum by creating a vector in the direction of the facing
-  # and with a magnitude representing the force we want to apply
-  def accelerate
-    @shape.body.apply_force((@shape.body.a.radians_to_vec2 * (3000.0/World::SUBSTEPS)), CP::Vec2.new(0.0, 0.0))
-  end
-  
-  # Apply even more forward force
-  # See accelerate for more details
-  def boost
-    @shape.body.apply_force((@shape.body.a.radians_to_vec2 * (3000.0)), CP::Vec2.new(0.0, 0.0))
-  end
-  
-  # Apply reverse force
-  # See accelerate for more details
-  def reverse
-    @shape.body.apply_force(-(@shape.body.a.radians_to_vec2 * (1000.0/World::SUBSTEPS)), CP::Vec2.new(0.0, 0.0))
-  end
-  
-  def reset_forces
-    body.reset_forces
-  end
-  
-  # Wrap to the other side of the screen when we fly off the edge
   def validate_position
-    l_position = CP::Vec2.new(@shape.body.p.x % World::WIDTH, @shape.body.p.y % World::HEIGHT)
-    @shape.body.p = l_position
+    warp CP::Vec2.new(@shape.body.p.x % World::WIDTH, @shape.body.p.y % World::HEIGHT)
   end
   
   def draw(center)
