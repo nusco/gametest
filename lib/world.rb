@@ -1,8 +1,8 @@
 require 'chipmunk'
 
 class World
-  WIDTH = 8000
-  HEIGHT = 6000
+  WIDTH = 4000
+  HEIGHT = 3000
   DT = (1.0 / 60.0)
   # The number of steps to process every Gosu update
   # The Player ship can get going so fast as to "move through" a
@@ -15,7 +15,14 @@ class World
   def initialize(window)
     @space = CP::Space.new
     @space.damping = 0.8
-
+    @space.add_collision_func(:bump, :bump) do |shape1, shape2|
+      speed = shape1.body.v.length + shape2.body.v.length
+      unless speed < 20
+        shape1.body.t += (rand(200) - 100) * speed / World::SUBSTEPS
+        shape2.body.t += (rand(200) - 100) * speed / World::SUBSTEPS
+      end
+    end
+ 
     @window = window
     @things = []
   end
@@ -26,7 +33,7 @@ class World
   
   def add(thing)
     @things << thing
-    @space.add_body thing.shape.body
+    @space.add_body thing.body
     @space.add_shape thing.shape
   end
   
@@ -36,6 +43,7 @@ class World
   
   def step
     @space.step DT
+    @things.each {|t| t.reset_forces }
   end
 end
 
@@ -58,13 +66,14 @@ class Thing
     # Create the Body for the Player
     body = CP::Body.new(10.0, 150.0)
     
-    @shape = CP::Shape::Circle.new(body, 25/2, CP::Vec2.new(0.0, 0.0))
+    @shape = CP::Shape::Circle.new(body, @image.width / 2, CP::Vec2.new(0.0, 0.0))
     @shape.body.p = CP::Vec2.new(0.0, 0.0)
     @shape.body.v = CP::Vec2.new(0.0, 0.0)
     # Keep in mind that down the screen is positive y, which means that PI/2 radians,
     # which you might consider the top in the traditional Trig unit circle sense is actually
     # the bottom; thus 3PI/2 is the top
     @shape.body.a = (3*Math::PI/2.0) # angle in radians; faces towards top of screen
+    shape.collision_type = :bump
     
     world.add(self)
   end
@@ -111,6 +120,10 @@ class Thing
   # See accelerate for more details
   def reverse
     @shape.body.apply_force(-(@shape.body.a.radians_to_vec2 * (1000.0/World::SUBSTEPS)), CP::Vec2.new(0.0, 0.0))
+  end
+  
+  def reset_forces
+    body.reset_forces
   end
   
   # Wrap to the other side of the screen when we fly off the edge

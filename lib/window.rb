@@ -22,12 +22,6 @@ class GameWindow < Gosu::Window
   def update
     # Step the physics environment SUBSTEPS times each update
     World::SUBSTEPS.times do
-      # When a force or torque is set on a Body, it is cumulative
-      # This means that the force you applied last SUBSTEP will compound with the
-      # force applied this SUBSTEP; which is probably not the behavior you want
-      # We reset the forces on the Player each SUBSTEP for this reason
-      @player.shape.body.reset_forces
-      
       # Wrap around the screen to the other side
       @player.validate_position
       
