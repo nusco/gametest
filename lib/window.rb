@@ -14,7 +14,7 @@ class GameWindow < Gosu::Window
     @world = World.new(self)
     
     @player = Player.new(@world)
-    200.times { Asteroid.new(@world) }
+    400.times { Asteroid.new(@world) }
 
     @world.track @player
   end

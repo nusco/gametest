@@ -115,7 +115,7 @@ class Thing
   
   # Wrap to the other side of the screen when we fly off the edge
   def validate_position
-    l_position = CP::Vec2.new(@shape.body.p.x % GameWindow::WIDTH, @shape.body.p.y % GameWindow::HEIGHT)
+    l_position = CP::Vec2.new(@shape.body.p.x % World::WIDTH, @shape.body.p.y % World::HEIGHT)
     @shape.body.p = l_position
   end
   
