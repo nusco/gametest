@@ -3,20 +3,21 @@ require 'chipmunk'
 class World
   WIDTH = 6000
   HEIGHT = 4500
-  DT = (1.0 / 60.0)
+  DT = 1.0 / 20.0
 
-  attr_reader :window
+  attr_reader :window, :camera
   
   def initialize(window)
     @space = CP::Space.new
-    @space.damping = 0.9
+    @space.damping = 0.7
 
     @window = window
     @things = []
   end
   
-  def track(thing)
-    @center = thing
+  def add_camera(camera)
+    @camera = camera
+    @things << camera
   end
   
   def add(thing)
@@ -26,15 +27,15 @@ class World
   end
   
   def draw
-    @things.each {|t| t.draw @center }
+    @things.each {|t| t.draw @camera }
   end
   
   def step
-    @things.each {|t| t.step @center }
+    @things.each {|t| t.step }
     @space.step DT
   end
   
-  def center
+  def self.zero
     CP::Vec2.new(WIDTH / 2, HEIGHT / 2)
   end
 end
@@ -55,15 +56,14 @@ class Thing
   def initialize(world, image)
     @image = Gosu::Image.new(world.window, image, false)
 
-    # Create the Body for the Player
     body = CP::Body.new(10.0, 150.0)
-    
+  
     @shape = CP::Shape::Circle.new(body, @image.width / 2, CP::Vec2.new(0.0, 0.0))
     @shape.body.p = CP::Vec2.new(0.0, 0.0)
     @shape.body.v = CP::Vec2.new(0.0, 0.0)
-    
+  
     @shape.body.a = (3 * Math::PI / 2.0) # angle in radians; faces towards top of screen
-    
+
     world.add(self)
   end
 
@@ -75,17 +75,15 @@ class Thing
     @shape.body.p = vect
   end
   
-  def step(center)
-    return
-    return if (body.p.x - center.body.p.x).abs > GameWindow::WIDTH || (body.p.y - center.body.p.y).abs > GameWindow::WIDTH
+  def step
   end
   
-  def validate_position
-    warp CP::Vec2.new(@shape.body.p.x % World::WIDTH, @shape.body.p.y % World::HEIGHT)
+  def is_in_world?
+    (0..World::WIDTH).include?(body.p.x) && (0..World::HEIGHT).include?(body.p.y)
   end
   
-  def draw(center)
-     offset = [GameWindow::WIDTH / 2 - center.body.p.x, GameWindow::HEIGHT / 2 - center.body.p.y]
+  def draw(camera)
+     offset = [GameWindow::WIDTH / 2 - camera.body.p.x, GameWindow::HEIGHT / 2 - camera.body.p.y]
      relative_position = [@shape.body.p.x + offset[0], @shape.body.p.y + offset[1]]
 
      @image.draw_rot(relative_position[0] - @image.width / 2.0, relative_position[1] - @image.height / 2.0, ZOrder::Player, @shape.body.a.radians_to_gosu)

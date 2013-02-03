@@ -14,29 +14,22 @@ class GameWindow < Gosu::Window
     @world = World.new(self)
     
     @player = Player.new(@world)
+    Camera.new(@world, @player)
     400.times { Asteroid.new(@world) }
 
-    @world.track @player
     @draw_counter = 1
   end
 
   def update
-    # Step the physics environment SUBSTEPS times each update
     @player.turn_left if button_down? Gosu::KbLeft
     @player.turn_right if button_down? Gosu::KbRight
     @player.accelerate if button_down? Gosu::KbUp
     
-    # Perform the step over @dt period of time
-    # For best performance @dt should remain consistent for the game
     @world.step
   end
   
   def draw
-    @draw_counter += 1
-    return unless draw_counter = 10
-
     @world.draw
-    @draw_counter = 1
   end
 
   def button_down(id)
