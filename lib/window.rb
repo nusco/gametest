@@ -16,8 +16,6 @@ class GameWindow < Gosu::Window
     @player = Player.new(@world)
     Camera.new(@world, @player)
     400.times { Asteroid.new(@world) }
-
-    @draw_counter = 1
   end
 
   def update

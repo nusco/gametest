@@ -6,8 +6,8 @@ class Player < Thing
 
     shape.e = 0.2
     shape.u = 0.3
-    body.m = 40
-    body.i = 200
+    body.m = 100
+    body.i = 100
 
     warp World.zero
   end
@@ -42,8 +42,8 @@ class Asteroid < Thing
 
     shape.e = 0.2
     shape.u = 0.1
-    body.m = 100
-    body.i = 500
+    body.m = 200
+    body.i = 250
 
     warp CP::Vec2.new(rand(World::WIDTH), rand(World::HEIGHT))
   end

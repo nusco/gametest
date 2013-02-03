@@ -9,7 +9,7 @@ class World
   
   def initialize(window)
     @space = CP::Space.new
-    @space.damping = 0.7
+    @space.damping = 0.5
 
     @window = window
     @things = []
