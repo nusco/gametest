@@ -2,12 +2,10 @@ require_relative 'world'
 
 class Player < Thing
   def initialize(world)
-    super(world, "img/rocket.png")
+    super(world, "img/rocket.png", 100, 100)
 
     shape.e = 0.7
     shape.u = 0.3
-    body.m = 100
-    body.i = 100
 
     warp World.zero
   end
@@ -41,12 +39,10 @@ end
 
 class Asteroid < Thing
   def initialize(world)
-    super(world, "img/asteroid.png")
+    super(world, "img/asteroid.png", 200, 250)
 
     shape.e = 0.2
     shape.u = 0.1
-    body.m = 200
-    body.i = 250
 
     warp CP::Vec2.new(rand(World::WIDTH), rand(World::HEIGHT))
   end
