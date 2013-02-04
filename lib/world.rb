@@ -59,10 +59,7 @@ class Thing
     body = CP::Body.new(m, i)
   
     @shape = CP::Shape::Circle.new(body, @image.width / 2, CP::Vec2.new(0.0, 0.0))
-    @shape.body.p = CP::Vec2.new(0.0, 0.0)
-    @shape.body.v = CP::Vec2.new(0.0, 0.0)
-  
-    @shape.body.a = (3 * Math::PI / 2.0) # angle in radians; faces towards top of screen
+    @shape.body.a = (3 * Math::PI / 2.0)
 
     world.add(self)
   end

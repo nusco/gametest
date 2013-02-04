@@ -11,15 +11,7 @@ class Player < Thing
   end
 
   def spin(amount)
-    body.apply_impulse(CP::Vec2.new(0, amount), CP::Vec2.new(@image.height, 0))
-  end
-  
-  def turn_left
-    spin -1
-  end
-  
-  def turn_right
-    spin 1
+    body.apply_impulse(CP::Vec2.new(0, amount), CP::Vec2.new(shape.radius, 0))
   end
 
   def chase(x, y)
@@ -28,18 +20,22 @@ class Player < Thing
   
   def step
     unless is_in_world?
-      edge_bounce = (CP::Vec2.new(World::WIDTH / 2, World::HEIGHT / 2) - body.p).normalize * 2000
+      edge_bounce = (World.zero - body.p).normalize * 2000
       body.apply_impulse(edge_bounce, CP::Vec2.new(0, 0))
       return
     end
-    body.apply_impulse((@target - body.p) * 3, CP::Vec2.new(0.0, 0.0)) if @target
+    return unless @target
+
+    to_target = (@target - body.p).normalize * 200
+    body.a += (to_target.to_angle - body.a) / 20
+    body.apply_impulse(to_target * 3, CP::Vec2.new(0.0, 0.0))
     @target = nil
   end
 end
 
 class Asteroid < Thing
   def initialize(world)
-    super(world, "img/asteroid.png", 200, 250)
+    super(world, "img/asteroid.png", 200, 100)
 
     shape.e = 0.2
     shape.u = 0.1
