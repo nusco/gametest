@@ -4,7 +4,7 @@ class Player < Thing
   def initialize(world)
     super(world, "img/rocket.png")
 
-    shape.e = 0.2
+    shape.e = 0.7
     shape.u = 0.3
     body.m = 100
     body.i = 100
@@ -29,6 +29,11 @@ class Player < Thing
   end
   
   def step
+    unless is_in_world?
+      edge_bounce = (CP::Vec2.new(World::WIDTH / 2, World::HEIGHT / 2) - body.p).normalize * 2000
+      body.apply_impulse(edge_bounce, CP::Vec2.new(0, 0))
+      return
+    end
     body.apply_impulse((@target - body.p) * 3, CP::Vec2.new(0.0, 0.0)) if @target
     @target = nil
   end
